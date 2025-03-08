@@ -4,8 +4,16 @@
     <meta charset="UTF-8">
     <title>Claim MyFreeToken</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
-        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -19,14 +27,17 @@
         let web3;
         let contract;
 
+        // Initialize Web3 and contract
         async function init() {
             if (window.ethereum) {
                 web3 = new Web3(window.ethereum);
                 try {
+                    // Request account access
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     document.getElementById("status").innerText = "MetaMask connected! Click to claim.";
                 } catch (error) {
                     document.getElementById("status").innerText = "Please connect MetaMask manually: " + error.message;
+                    console.error("User denied account access:", error);
                     return;
                 }
             } else {
@@ -34,19 +45,41 @@
                 return;
             }
 
-            const contractAddress = "YOUR_CONTRACT_ADDRESS_HERE"; // Replace with your address
+            // Replace with your actual contract address from Remix
+            const contractAddress = "0x5B38Da6a701c568545dCfcB03FcB875f56beddC4"; // Example address
+
+            // Replace with your actual ABI from Remix
             const contractABI = [
-                // Paste your ABI here (copied from Remix)
+                {"inputs":[],"stateMutability":"nonpayable","type":"constructor"},
+                {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},
+                {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},
+                {"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+                {"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},
+                {"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+                {"inputs":[],"name":"claim","outputs":[],"stateMutability":"nonpayable","type":"function"},
+                {"inputs":[],"name":"claimAmount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+                {"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},
+                {"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"subtractedValue","type":"uint256"}],"name":"decreaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},
+                {"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"hasClaimed","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},
+                {"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"addedValue","type":"uint256"}],"name":"increaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},
+                {"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
+                {"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
+                {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+                {"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},
+                {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"}
             ];
 
+            // Initialize the contract
             try {
                 contract = new web3.eth.Contract(contractABI, contractAddress);
                 document.getElementById("status").innerText = "Contract initialized. Ready to claim!";
             } catch (error) {
                 document.getElementById("status").innerText = "Error initializing contract: " + error.message;
+                console.error("Contract initialization error:", error);
             }
         }
 
+        // Claim function
         async function claimTokens() {
             if (!web3 || !contract) {
                 document.getElementById("status").innerText = "Error: Web3 or contract not initialized.";
@@ -70,7 +103,10 @@
             }
         }
 
+        // Run initialization on page load
         window.addEventListener('load', init);
+
+        // Add click event to button
         document.getElementById("claimButton").addEventListener("click", claimTokens);
     </script>
 </body>
