@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Claim MyFreeToken</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Claim Your Free MFT Tokens</h1>
+    <p>Connect your MetaMask wallet and claim 100 MFT!</p>
+    <button id="claimButton">Claim 100 MFT</button>
+    <p id="status">Status: Waiting...</p>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.7.5/web3.min.js"></script>
+    <script>
+        let web3;
+        let contract;
+
+        async function init() {
+            if (window.ethereum) {
+                web3 = new Web3(window.ethereum);
+                try {
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    document.getElementById("status").innerText = "MetaMask connected! Click to claim.";
+                } catch (error) {
+                    document.getElementById("status").innerText = "Please connect MetaMask manually: " + error.message;
+                    return;
+                }
+            } else {
+                document.getElementById("status").innerText = "Please install MetaMask!";
+                return;
+            }
+
+            const contractAddress = "YOUR_CONTRACT_ADDRESS_HERE"; // Replace with your address
+            const contractABI = [
+                // Paste your ABI here (copied from Remix)
+            ];
+
+            try {
+                contract = new web3.eth.Contract(contractABI, contractAddress);
+                document.getElementById("status").innerText = "Contract initialized. Ready to claim!";
+            } catch (error) {
+                document.getElementById("status").innerText = "Error initializing contract: " + error.message;
+            }
+        }
+
+        async function claimTokens() {
+            if (!web3 || !contract) {
+                document.getElementById("status").innerText = "Error: Web3 or contract not initialized.";
+                return;
+            }
+
+            const accounts = await web3.eth.getAccounts();
+            if (!accounts || accounts.length === 0) {
+                document.getElementById("status").innerText = "Please connect MetaMask.";
+                return;
+            }
+
+            const account = accounts[0];
+            document.getElementById("status").innerText = "Claiming...";
+
+            try {
+                await contract.methods.claim().send({ from: account });
+                document.getElementById("status").innerText = "Success! You claimed 100 MFT!";
+            } catch (error) {
+                document.getElementById("status").innerText = "Error: " + error.message;
+            }
+        }
+
+        window.addEventListener('load', init);
+        document.getElementById("claimButton").addEventListener("click", claimTokens);
+    </script>
+</body>
+</html>
